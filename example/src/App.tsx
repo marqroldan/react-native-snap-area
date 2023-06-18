@@ -49,6 +49,46 @@ function ChatHeads({
     });
   }
 
+  function moveIt(velocityX: number, velocityY: number) {
+    'worklet';
+
+    const width = parentDimensions.width - (childDimensions.width ?? 0); // minus width
+    const height = parentDimensions.height - (childDimensions.height ?? 0); // minus height
+    const toss = 0.2;
+
+    const targetX = clamp(transX.value + toss * velocityX, 0, width);
+    const targetY = clamp(transY.value + toss * velocityY, 0, height);
+    // return;
+
+    const top = targetY;
+    const bottom = height - targetY;
+    const left = targetX;
+    const right = width - targetX;
+    const minDistance = Math.min(top, bottom, left, right);
+    let snapX = targetX;
+    let snapY = targetY;
+    switch (minDistance) {
+      case top:
+        snapY = 0;
+        break;
+      case bottom:
+        snapY = height;
+        break;
+      case left:
+        snapX = 0;
+        break;
+      case right:
+        snapX = width;
+        break;
+    }
+    transX.value = withSpring(snapX, {
+      velocity: velocityX,
+    });
+    transY.value = withSpring(snapY, {
+      velocity: velocityY,
+    });
+  }
+
   type AnimatedGHContext = {
     startX: number;
     startY: number;
@@ -66,42 +106,7 @@ function ChatHeads({
       transY.value = ctx.startY + event.translationY;
     },
     onEnd: (event) => {
-      console.log('asdkalsdjka', childDimensions);
-      const width = parentDimensions.width - (childDimensions.width ?? 0); // minus width
-      const height = parentDimensions.height - (childDimensions.height ?? 0); // minus height
-      const toss = 0.2;
-
-      const targetX = clamp(transX.value + toss * event.velocityX, 0, width);
-      const targetY = clamp(transY.value + toss * event.velocityY, 0, height);
-      // return;
-
-      const top = targetY;
-      const bottom = height - targetY;
-      const left = targetX;
-      const right = width - targetX;
-      const minDistance = Math.min(top, bottom, left, right);
-      let snapX = targetX;
-      let snapY = targetY;
-      switch (minDistance) {
-        case top:
-          snapY = 0;
-          break;
-        case bottom:
-          snapY = height;
-          break;
-        case left:
-          snapX = 0;
-          break;
-        case right:
-          snapX = width;
-          break;
-      }
-      transX.value = withSpring(snapX, {
-        velocity: event.velocityX,
-      });
-      transY.value = withSpring(snapY, {
-        velocity: event.velocityY,
-      });
+      moveIt(event.velocityX, event.velocityY);
     },
   });
 
