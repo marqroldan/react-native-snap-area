@@ -3,18 +3,16 @@ import { View, StyleSheet, Button } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import SnapArea from 'react-native-snap-area';
-import { snapPointsGenerator } from '../../src/helpers/snapPointsGenerator';
+import type { SnapPointsImplicit } from '../../src/helpers/snapPointsGenerator';
+
+const snapPoints = [
+  [1, 0, 0],
+  [1, 0, 1],
+] as SnapPointsImplicit;
 
 function SnapAreaExample(): React.ReactElement {
   const [childChanged, setChildChanged] = useState(false);
   const [parentChanged, setParentChanged] = useState(false);
-
-  console.log(
-    snapPointsGenerator(500, 500, [
-      [1, 0, 0],
-      [1, 0, 1],
-    ])
-  );
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -24,7 +22,7 @@ function SnapAreaExample(): React.ReactElement {
           parentChanged ? { margin: 0, marginBottom: 150 } : undefined,
         ]}
       >
-        <SnapArea>
+        <SnapArea snapPoints={snapPoints}>
           <View
             style={[
               styles.head,

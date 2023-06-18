@@ -10,6 +10,11 @@ import {
   PanGestureHandler,
   PanGestureHandlerGestureEvent,
 } from 'react-native-gesture-handler';
+import {
+  SnapPoints,
+  snapPointsGenerator,
+  SnapPointsImplicit,
+} from './helpers/snapPointsGenerator';
 import type { SnapPointItem, WrapTypes } from './helpers/snapPointsGenerator';
 
 const { width: windowWidth, height: windowHeight } = Dimensions.get('window');
@@ -19,12 +24,13 @@ function clamp(value: number, min: number, max: number) {
 }
 
 type Props = {
-  snapPoints?: (1 | 0)[][];
+  snapPoints?: SnapPointsImplicit;
   snapPointsExplicit?: SnapPointItem[];
   wrapType?: WrapTypes;
 };
 
-export function SnapArea({ children }: React.PropsWithChildren<Props>) {
+export function SnapArea(props: React.PropsWithChildren<Props>) {
+  const { children } = props;
   const transX = useSharedValue(0);
   const transY = useSharedValue(0);
 
@@ -52,6 +58,24 @@ export function SnapArea({ children }: React.PropsWithChildren<Props>) {
     });
   }
 
+  const [snapPoints, setSnapPoints] = useState<undefined | SnapPointItem[]>(
+    undefined
+  );
+
+  useEffect(() => {
+    if (props.snapPointsExplicit) {
+      setSnapPoints(props.snapPointsExplicit);
+    } else if (props.snapPoints?.length) {
+      setSnapPoints(
+        snapPointsGenerator(
+          parentDimensions.width,
+          parentDimensions.height,
+          props.snapPoints
+        )
+      );
+    }
+  }, [parentDimensions, props.snapPoints, props.snapPointsExplicit]);
+
   function moveIt(velocityX: number, velocityY: number) {
     'worklet';
 
@@ -61,29 +85,66 @@ export function SnapArea({ children }: React.PropsWithChildren<Props>) {
 
     const targetX = clamp(transX.value + toss * velocityX, 0, width);
     const targetY = clamp(transY.value + toss * velocityY, 0, height);
-    // return;
+    console.log('Where is it targetting', { targetX, targetY });
 
-    const top = targetY;
-    const bottom = height - targetY;
-    const left = targetX;
-    const right = width - targetX;
-    const minDistance = Math.min(top, bottom, left, right);
     let snapX = targetX;
     let snapY = targetY;
-    switch (minDistance) {
-      case top:
-        snapY = 0;
-        break;
-      case bottom:
-        snapY = height;
-        break;
-      case left:
-        snapX = 0;
-        break;
-      case right:
-        snapX = width;
-        break;
+
+    if (snapPoints?.length) {
+      const distArray: number[] = [];
+
+      let currentSmallestIndex = 0;
+      let currentSmallestDistance = parentDimensions.width;
+
+      for (let i = 0; i < snapPoints.length; i++) {
+        /// weird how it keeps saying it might be undefined when the loop should have provided that info?
+        const snapPoint = snapPoints[i]!;
+
+        const dist = Math.sqrt(
+          Math.pow(targetX - snapPoint.x, 2) +
+            Math.pow(targetY - snapPoint.y, 2)
+        );
+
+        if (dist < currentSmallestDistance) {
+          currentSmallestDistance = dist;
+          currentSmallestIndex = i;
+        }
+
+        distArray.push(dist);
+      }
+
+      console.log({ distArray, currentSmallestIndex });
+
+      /// weird how it keeps saying it might be undefined when the loop should have provided that info?
+      const selectedSnapPoint = snapPoints[currentSmallestIndex]!;
+      snapX = clamp(selectedSnapPoint.x, 0, width);
+      snapY = clamp(selectedSnapPoint.y, 0, height);
+
+      /// correction
+    } else {
+      const top = targetY;
+      const bottom = height - targetY;
+      const left = targetX;
+      const right = width - targetX;
+      const minDistance = Math.min(top, bottom, left, right);
+      switch (minDistance) {
+        case top:
+          snapY = 0;
+          break;
+        case bottom:
+          snapY = height;
+          break;
+        case left:
+          snapX = 0;
+          break;
+        case right:
+          snapX = width;
+          break;
+      }
     }
+
+    console.log('Where is it going', { snapX, snapY });
+
     transX.value = withSpring(snapX, {
       velocity: velocityX,
     });
@@ -114,8 +175,9 @@ export function SnapArea({ children }: React.PropsWithChildren<Props>) {
   });
 
   useEffect(() => {
+    console.log('dimensions', { parentDimensions, childDimensions });
     moveIt(0, 0);
-  }, [parentDimensions, childDimensions]);
+  }, [snapPoints, parentDimensions, childDimensions]);
 
   const stylez = useAnimatedStyle(() => {
     return {

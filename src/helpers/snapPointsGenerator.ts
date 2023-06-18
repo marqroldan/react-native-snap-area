@@ -1,11 +1,14 @@
 export type SnapPointItem = { x: number; y: number };
 export type WrapTypes = 'around' | 'edge';
+export type SnapPointImplicitItem = (1 | 0)[];
+export type SnapPointsImplicit = SnapPointImplicitItem[];
+
 const defaultSnapPoints: SnapPointItem[] = [];
 
 export function snapPointsGenerator(
   width: number,
   height: number,
-  snapPoints: number[][],
+  snapPoints: SnapPointsImplicit,
   wrapType: WrapTypes = 'edge'
 ) {
   let finalSnapPoints = defaultSnapPoints;
