@@ -11,7 +11,6 @@ import {
   PanGestureHandlerGestureEvent,
 } from 'react-native-gesture-handler';
 import {
-  SnapPoints,
   snapPointsGenerator,
   SnapPointsImplicit,
 } from './helpers/snapPointsGenerator';
@@ -70,7 +69,8 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
         snapPointsGenerator(
           parentDimensions.width - (childDimensions.width ?? 0),
           parentDimensions.height - (childDimensions.height ?? 0),
-          props.snapPoints
+          props.snapPoints,
+          props.wrapType
         )
       );
     }
@@ -79,6 +79,7 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
     childDimensions,
     props.snapPoints,
     props.snapPointsExplicit,
+    props.wrapType,
   ]);
 
   function moveIt(velocityX: number, velocityY: number) {
@@ -95,8 +96,6 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
     let snapY = targetY;
 
     if (snapPoints?.length) {
-      const distArray: number[] = [];
-
       let currentSmallestIndex = 0;
       let currentSmallestDistance = parentDimensions.width;
 
@@ -113,14 +112,12 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
           currentSmallestDistance = dist;
           currentSmallestIndex = i;
         }
-
-        distArray.push(dist);
       }
 
       /// weird how it keeps saying it might be undefined when the loop should have provided that info?
       const selectedSnapPoint = snapPoints[currentSmallestIndex]!;
-      snapX = selectedSnapPoint.x || clamp(selectedSnapPoint.x, 0, width);
-      snapY = selectedSnapPoint.y || clamp(selectedSnapPoint.y, 0, height);
+      snapX = selectedSnapPoint.x;
+      snapY = selectedSnapPoint.y;
 
       /// correction
     } else {

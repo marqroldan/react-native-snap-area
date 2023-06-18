@@ -18,9 +18,11 @@ export function snapPointsGenerator(
   }
   finalSnapPoints = [];
 
-  let numberOfRows = (snapPoints?.length ?? 0) + 1;
+  const bufferCase = wrapType === 'around' ? 0 : 1;
+
+  let numberOfRows = (snapPoints?.length ?? 0) + bufferCase;
   let finalRowWrapType: WrapTypes;
-  if (wrapType === 'edge' && numberOfRows - 2 > 0) {
+  if (wrapType === 'edge' && numberOfRows - 1 > 0) {
     finalRowWrapType = 'edge';
     numberOfRows = numberOfRows - 2;
   } else {
@@ -31,7 +33,8 @@ export function snapPointsGenerator(
 
   const columnWidthCache: { [key: string]: number } = {};
 
-  let currHeightSegment = finalRowWrapType === 'edge' ? 0 : rowHeightPerSegment;
+  let currHeightSegment =
+    finalRowWrapType === 'edge' ? 0 : rowHeightPerSegment / 2;
   for (let i = 0; i < snapPoints.length; i++) {
     const itemColumns = snapPoints[i];
     if (!itemColumns?.length) {
@@ -39,9 +42,9 @@ export function snapPointsGenerator(
       continue;
     }
 
-    let numberOfColumns = (itemColumns?.length ?? 0) + 1;
+    let numberOfColumns = (itemColumns?.length ?? 0) + bufferCase;
     let finalColumnWrapType: WrapTypes;
-    if (wrapType === 'edge' && numberOfColumns - 2 > 0) {
+    if (wrapType === 'edge' && numberOfColumns - 1 > 0) {
       finalColumnWrapType = 'edge';
       numberOfColumns = numberOfColumns - 2;
     } else {
@@ -53,7 +56,9 @@ export function snapPointsGenerator(
     }
 
     const currWidth = columnWidthCache[numberOfColumns] as number;
-    let currWidthSegment = finalColumnWrapType === 'edge' ? 0 : currWidth;
+    console.log('CurrWidth', { currWidth, width, numberOfColumns });
+
+    let currWidthSegment = finalColumnWrapType === 'edge' ? 0 : currWidth / 2;
     for (let j = 0; j < itemColumns.length; j++) {
       if (!itemColumns[j]) {
         currWidthSegment += currWidth;
@@ -69,6 +74,7 @@ export function snapPointsGenerator(
     currHeightSegment += rowHeightPerSegment;
   }
 
+  console.log('curr dimension', { width, height, snapPoints, wrapType });
   console.log('Final Snap Points', finalSnapPoints);
   return finalSnapPoints;
 }

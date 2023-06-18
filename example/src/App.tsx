@@ -6,8 +6,9 @@ import SnapArea from 'react-native-snap-area';
 import type { SnapPointsImplicit } from '../../src/helpers/snapPointsGenerator';
 
 const snapPoints = [
+  [1, 1],
   [1, 1, 1],
-  [1, 1, 1],
+  [1, 1],
 ] as SnapPointsImplicit;
 
 function SnapAreaExample(): React.ReactElement {
@@ -18,11 +19,14 @@ function SnapAreaExample(): React.ReactElement {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View
         style={[
-          { flex: 1, margin: 50, backgroundColor: 'red' },
-          parentChanged ? { margin: 0, marginBottom: 150 } : undefined,
+          { flex: 1 },
+          { backgroundColor: 'red', marginVertical: 150, marginHorizontal: 25 },
+          parentChanged
+            ? { margin: 0, marginVertical: 0, marginBottom: 150 }
+            : undefined,
         ]}
       >
-        <SnapArea snapPoints={snapPoints}>
+        <SnapArea snapPoints={snapPoints} wrapType={'edge'}>
           <View
             style={[
               styles.head,
