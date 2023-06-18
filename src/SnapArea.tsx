@@ -73,6 +73,10 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
           props.wrapType
         )
       );
+    } else {
+      if (snapPoints) {
+        setSnapPoints(undefined);
+      }
     }
   }, [
     parentDimensions,
