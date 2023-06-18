@@ -63,8 +63,6 @@ const styles = StyleSheet.create({
 });
 
 function FinalApp() {
-  /// SnapAreaExample
-  /// ScrollableViewExample
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SnapAreaExample />
