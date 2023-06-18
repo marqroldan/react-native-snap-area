@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Dimensions, StyleSheet, Button } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -110,6 +110,10 @@ function ChatHeads({
     },
   });
 
+  useEffect(() => {
+    moveIt(0, 0);
+  }, [parentDimensions, childDimensions]);
+
   const stylez = useAnimatedStyle(() => {
     return {
       transform: [
@@ -145,7 +149,7 @@ function ChatHeadsExample(): React.ReactElement {
       <View
         style={[
           { flex: 1, margin: 50, backgroundColor: 'red' },
-          parentChanged ? { marginBottom: 150 } : undefined,
+          parentChanged ? { margin: 0, marginBottom: 150 } : undefined,
         ]}
       >
         <ChatHeads>
