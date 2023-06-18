@@ -2,6 +2,10 @@
 
 Creates an area that makes the sides or specific points snappable by the child
 
+
+https://github.com/marqroldan/react-native-snap-area/assets/11716376/72ff1afa-7d8f-4f5c-b94d-ffb358fe6125
+
+
 ## Installation
 
 ```sh
