@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Button } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import SnapArea, { snapPointsGenerator } from 'react-native-snap-area';
+import SnapArea from 'react-native-snap-area';
+import { snapPointsGenerator } from '../../src/helpers/snapPointsGenerator';
 
 function SnapAreaExample(): React.ReactElement {
   const [childChanged, setChildChanged] = useState(false);
