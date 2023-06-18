@@ -1,6 +1,6 @@
 # react-native-snap-area
 
-Package for allowing an element to be snapped to
+Creates an area that makes the sides or specific points snappable by the child
 
 ## Installation
 
@@ -11,11 +11,29 @@ npm install react-native-snap-area
 ## Usage
 
 ```js
-import { multiply } from 'react-native-snap-area';
+import SnapArea from 'react-native-snap-area';
 
-// ...
+const snapPoints = [
+  [1, 1],
+  [1, 1, 1],
+  [1, 1],
+];
+// Check out the example App.tsx file file to test it
 
-const result = await multiply(3, 7);
+function App() {
+  return (
+    <SnapArea snapPoints={snapPoints}>
+      <View
+        style={[
+          styles.head,
+          { backgroundColor: 'black' },
+          childChanged ? { width: 75, height: 150 } : undefined,
+        ]}
+      />
+    </SnapArea>
+  )
+}
+
 ```
 
 ## Contributing
