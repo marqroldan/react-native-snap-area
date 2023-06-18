@@ -56,7 +56,6 @@ export function snapPointsGenerator(
     }
 
     const currWidth = columnWidthCache[numberOfColumns] as number;
-    console.log('CurrWidth', { currWidth, width, numberOfColumns });
 
     let currWidthSegment = finalColumnWrapType === 'edge' ? 0 : currWidth / 2;
     for (let j = 0; j < itemColumns.length; j++) {
@@ -74,7 +73,5 @@ export function snapPointsGenerator(
     currHeightSegment += rowHeightPerSegment;
   }
 
-  console.log('curr dimension', { width, height, snapPoints, wrapType });
-  console.log('Final Snap Points', finalSnapPoints);
   return finalSnapPoints;
 }
