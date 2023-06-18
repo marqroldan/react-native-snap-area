@@ -6,8 +6,8 @@ import SnapArea from 'react-native-snap-area';
 import type { SnapPointsImplicit } from '../../src/helpers/snapPointsGenerator';
 
 const snapPoints = [
-  [1, 0, 0],
-  [1, 0, 1],
+  [1, 1, 1],
+  [1, 1, 1],
 ] as SnapPointsImplicit;
 
 function SnapAreaExample(): React.ReactElement {

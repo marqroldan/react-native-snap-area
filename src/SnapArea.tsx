@@ -68,13 +68,18 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
     } else if (props.snapPoints?.length) {
       setSnapPoints(
         snapPointsGenerator(
-          parentDimensions.width,
-          parentDimensions.height,
+          parentDimensions.width - (childDimensions.width ?? 0),
+          parentDimensions.height - (childDimensions.height ?? 0),
           props.snapPoints
         )
       );
     }
-  }, [parentDimensions, props.snapPoints, props.snapPointsExplicit]);
+  }, [
+    parentDimensions,
+    childDimensions,
+    props.snapPoints,
+    props.snapPointsExplicit,
+  ]);
 
   function moveIt(velocityX: number, velocityY: number) {
     'worklet';
@@ -85,7 +90,6 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
 
     const targetX = clamp(transX.value + toss * velocityX, 0, width);
     const targetY = clamp(transY.value + toss * velocityY, 0, height);
-    console.log('Where is it targetting', { targetX, targetY });
 
     let snapX = targetX;
     let snapY = targetY;
@@ -113,12 +117,10 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
         distArray.push(dist);
       }
 
-      console.log({ distArray, currentSmallestIndex });
-
       /// weird how it keeps saying it might be undefined when the loop should have provided that info?
       const selectedSnapPoint = snapPoints[currentSmallestIndex]!;
-      snapX = clamp(selectedSnapPoint.x, 0, width);
-      snapY = clamp(selectedSnapPoint.y, 0, height);
+      snapX = selectedSnapPoint.x || clamp(selectedSnapPoint.x, 0, width);
+      snapY = selectedSnapPoint.y || clamp(selectedSnapPoint.y, 0, height);
 
       /// correction
     } else {
@@ -142,8 +144,6 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
           break;
       }
     }
-
-    console.log('Where is it going', { snapX, snapY });
 
     transX.value = withSpring(snapX, {
       velocity: velocityX,
@@ -175,7 +175,6 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
   });
 
   useEffect(() => {
-    console.log('dimensions', { parentDimensions, childDimensions });
     moveIt(0, 0);
   }, [snapPoints, parentDimensions, childDimensions]);
 

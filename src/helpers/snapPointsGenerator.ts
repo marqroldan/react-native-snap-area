@@ -69,5 +69,6 @@ export function snapPointsGenerator(
     currHeightSegment += rowHeightPerSegment;
   }
 
+  console.log('Final Snap Points', finalSnapPoints);
   return finalSnapPoints;
 }
