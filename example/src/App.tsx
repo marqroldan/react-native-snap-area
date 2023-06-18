@@ -8,7 +8,12 @@ function SnapAreaExample(): React.ReactElement {
   const [childChanged, setChildChanged] = useState(false);
   const [parentChanged, setParentChanged] = useState(false);
 
-  console.log(snapPointsGenerator(500, 500, [[1, 0, 1]]));
+  console.log(
+    snapPointsGenerator(500, 500, [
+      [1, 0, 0],
+      [1, 0, 1],
+    ])
+  );
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

@@ -1,14 +1,3 @@
-/*
-
-How would snap points work?
-
-undefined -> closest side
-[1] -> middle
-[1,1] -> sides
-
-
- */
-
 import React, { useEffect, useState } from 'react';
 import { Dimensions, LayoutChangeEvent, View } from 'react-native';
 import {
@@ -31,6 +20,7 @@ function clamp(value: number, min: number, max: number) {
 }
 
 type SnapPointItem = { x: number; y: number };
+type WrapTypes = 'around' | 'edge';
 
 type Props = {
   /**
@@ -39,15 +29,17 @@ type Props = {
    *  [1] ---> center
    * ]
    */
-  snapPoints: (1 | 0)[][];
-  snapPointsExplicit: SnapPointItem[];
+  snapPoints?: (1 | 0)[][];
+  snapPointsExplicit?: SnapPointItem[];
+  wrapType?: WrapTypes;
 };
 
 const defaultSnapPoints: SnapPointItem[] = [];
 export function snapPointsGenerator(
   width: number,
   height: number,
-  snapPoints: number[][]
+  snapPoints: number[][],
+  wrapType: WrapTypes = 'edge'
 ) {
   let finalSnapPoints = defaultSnapPoints;
 
@@ -56,25 +48,42 @@ export function snapPointsGenerator(
   }
   finalSnapPoints = [];
 
-  const numberOfRows = (snapPoints?.length ?? 0) + 1;
+  let numberOfRows = (snapPoints?.length ?? 0) + 1;
+  let finalRowWrapType: WrapTypes;
+  if (wrapType === 'edge' && numberOfRows - 2 > 0) {
+    finalRowWrapType = 'edge';
+    numberOfRows = numberOfRows - 2;
+  } else {
+    finalRowWrapType = 'around';
+  }
+
   const rowHeightPerSegment = height / numberOfRows;
 
   const columnWidthCache: { [key: string]: number } = {};
 
+  let currHeightSegment = finalRowWrapType === 'edge' ? 0 : rowHeightPerSegment;
   for (let i = 0; i < snapPoints.length; i++) {
     const itemColumns = snapPoints[i];
     if (!itemColumns?.length) {
+      currHeightSegment += rowHeightPerSegment;
       continue;
     }
 
-    const numberOfColumns = (itemColumns?.length ?? 0) + 1;
+    let numberOfColumns = (itemColumns?.length ?? 0) + 1;
+    let finalColumnWrapType: WrapTypes;
+    if (wrapType === 'edge' && numberOfColumns - 2 > 0) {
+      finalColumnWrapType = 'edge';
+      numberOfColumns = numberOfColumns - 2;
+    } else {
+      finalColumnWrapType = 'around';
+    }
 
     if (!columnWidthCache[numberOfColumns]) {
       columnWidthCache[numberOfColumns] = width / numberOfColumns;
     }
 
     const currWidth = columnWidthCache[numberOfColumns] as number;
-    let currWidthSegment = currWidth;
+    let currWidthSegment = finalColumnWrapType === 'edge' ? 0 : currWidth;
     for (let j = 0; j < itemColumns.length; j++) {
       if (!itemColumns[j]) {
         currWidthSegment += currWidth;
@@ -82,10 +91,12 @@ export function snapPointsGenerator(
       }
       finalSnapPoints.push({
         x: currWidthSegment,
-        y: rowHeightPerSegment,
+        y: currHeightSegment,
       } as SnapPointItem);
       currWidthSegment += currWidth;
     }
+
+    currHeightSegment += rowHeightPerSegment;
   }
 
   return finalSnapPoints;
