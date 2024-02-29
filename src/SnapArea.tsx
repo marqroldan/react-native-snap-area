@@ -195,7 +195,7 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
   const child = React.Children.only(children);
 
   return (
-    <View style={{ width: '100%', height: '100%' }} onLayout={onLayoutParent}>
+    <View style={{ width: '100%', height: '100%' }} onLayout={onLayoutParent} pointerEvents={'box-none'}>
       <PanGestureHandler onGestureEvent={gestureHandler}>
         <Animated.View style={[{ position: 'absolute' }, stylez]}>
           <View onLayout={onLayoutChild}>{child}</View>
