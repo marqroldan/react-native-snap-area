@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Animated, {
-  useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { Dimensions, LayoutChangeEvent, View } from 'react-native';
-import {
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
-} from 'react-native-gesture-handler';
+import {Dimensions, LayoutChangeEvent, View} from 'react-native';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {
   snapPointsGenerator,
   SnapPointsImplicit,
 } from './helpers/snapPointsGenerator';
-import type { SnapPointItem, WrapTypes } from './helpers/snapPointsGenerator';
+import type {SnapPointItem, WrapTypes} from './helpers/snapPointsGenerator';
 
-const { width: windowWidth, height: windowHeight } = Dimensions.get('window');
+const {width: windowWidth, height: windowHeight} = Dimensions.get('window');
 function clamp(value: number, min: number, max: number) {
   'worklet';
   return Math.min(Math.max(value, min), max);
@@ -29,7 +25,7 @@ type Props = {
 };
 
 export function SnapArea(props: React.PropsWithChildren<Props>) {
-  const { children } = props;
+  const {children} = props;
   const transX = useSharedValue(0);
   const transY = useSharedValue(0);
 
@@ -58,7 +54,7 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
   }
 
   const [snapPoints, setSnapPoints] = useState<undefined | SnapPointItem[]>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -70,8 +66,8 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
           parentDimensions.width - (childDimensions.width ?? 0),
           parentDimensions.height - (childDimensions.height ?? 0),
           props.snapPoints,
-          props.wrapType
-        )
+          props.wrapType,
+        ),
       );
     } else {
       if (snapPoints) {
@@ -109,7 +105,7 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
 
         const dist = Math.sqrt(
           Math.pow(targetX - snapPoint.x, 2) +
-            Math.pow(targetY - snapPoint.y, 2)
+            Math.pow(targetY - snapPoint.y, 2),
         );
 
         if (dist < currentSmallestDistance) {
@@ -153,27 +149,22 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
       velocity: velocityY,
     });
   }
+  
+  const startX = useSharedValue(0);
+  const startY = useSharedValue(0);
 
-  type AnimatedGHContext = {
-    startX: number;
-    startY: number;
-  };
-  const gestureHandler = useAnimatedGestureHandler<
-    PanGestureHandlerGestureEvent,
-    AnimatedGHContext
-  >({
-    onStart: (_, ctx) => {
-      ctx.startX = transX.value;
-      ctx.startY = transY.value;
-    },
-    onActive: (event, ctx) => {
-      transX.value = ctx.startX + event.translationX;
-      transY.value = ctx.startY + event.translationY;
-    },
-    onEnd: (event) => {
+  const panGesture = Gesture.Pan()
+    .onBegin(() => {
+      startX.value = transX.value;
+      startY.value = transY.value;
+    })
+    .onUpdate((event) => {
+      transX.value = startX.value + event.translationX;
+      transY.value = startY.value + event.translationY;
+    })
+    .onEnd((event) => {
       moveIt(event.velocityX, event.velocityY);
-    },
-  });
+    });
 
   useEffect(() => {
     moveIt(0, 0);
@@ -195,12 +186,15 @@ export function SnapArea(props: React.PropsWithChildren<Props>) {
   const child = React.Children.only(children);
 
   return (
-    <View style={{ width: '100%', height: '100%' }} onLayout={onLayoutParent} pointerEvents={'box-none'}>
-      <PanGestureHandler onGestureEvent={gestureHandler}>
-        <Animated.View style={[{ position: 'absolute' }, stylez]}>
+    <View
+      style={{width: '100%', height: '100%'}}
+      onLayout={onLayoutParent}
+      pointerEvents={'box-none'}>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View style={[{position: 'absolute'}, stylez]}>
           <View onLayout={onLayoutChild}>{child}</View>
         </Animated.View>
-      </PanGestureHandler>
+      </GestureDetector>
     </View>
   );
 }
