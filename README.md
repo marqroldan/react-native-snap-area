@@ -9,8 +9,11 @@ https://github.com/marqroldan/react-native-snap-area/assets/11716376/72ff1afa-7d
 ## Installation
 
 ```sh
-npm install react-native-snap-area
+npm install react-native-snap-area react-native-gesture-handler@^3 react-native-reanimated
 ```
+
+The next release requires React Native Gesture Handler 3. Apps using Gesture
+Handler 2 should remain on `react-native-snap-area@0.1.x`.
 
 ## Usage
 
